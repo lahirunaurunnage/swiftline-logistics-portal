@@ -59,9 +59,27 @@ export default function DashboardOverview() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleTrack = (e: React.FormEvent) => {
+  const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Tracking package: ${trackingNo} via AfterShip API integration.`);
+    if (!trackingNo) return;
+
+    try {
+      const res = await fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trackingNumber: trackingNo, courier: 'SF Express' })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        const lastCheckpoint = result.data.checkpoints[result.data.checkpoints.length - 1];
+        alert(`Tracking Status: ${result.data.status} | Last Location: ${lastCheckpoint ? lastCheckpoint.location : 'N/A'}`);
+      } else {
+        alert("Tracking failed: " + result.error);
+      }
+    } catch (err: any) {
+      alert("Error tracking package: " + err.message);
+    }
   };
 
   if (!user || !profile) {
@@ -109,6 +127,12 @@ export default function DashboardOverview() {
           </Link>
           <Link href="/dashboard/qc" className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2">
             <span>🛡️</span> QC Viewer
+          </Link>
+          <Link href="/dashboard/invoices" className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2">
+            <span>📄</span> Invoices
+          </Link>
+          <Link href="/dashboard/live-audit" className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2">
+            <span>🔴</span> Live Audit
           </Link>
           <Link href="/dashboard/support" className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2">
             <span>🎧</span> Support

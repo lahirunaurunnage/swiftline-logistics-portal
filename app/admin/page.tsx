@@ -25,10 +25,10 @@ export default function AdminScanner() {
     setSubmitting(true);
 
     try {
-      // 1. මුලින්ම profiles වගුවෙන් මෙම SWIFT කේතයට අදාළ user_id එක සොයා ගැනීම
+      // 1. profiles වගුවෙන් මෙම SWIFT කේතයට අදාළ user_id සහ email එක සොයා ගැනීම
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, email, swift_code")
         .eq("swift_code", swiftCode.trim().toUpperCase())
         .single();
 
@@ -39,6 +39,7 @@ export default function AdminScanner() {
       }
 
       const userId = profileData.id;
+      const clientEmail = profileData.email;
 
       // 2. packages වගුවට අලුත් පාර්සලය ඇතුළත් කිරීම
       const { error: insertError } = await supabase
@@ -55,12 +56,32 @@ export default function AdminScanner() {
 
       if (insertError) {
         alert("Error saving package: " + insertError.message);
-      } else {
-        alert(`Package ${trackingNo} successfully assigned to ${swiftCode.toUpperCase()}!`);
-        setSwiftCode("");
-        setTrackingNo("");
-        setWeight("");
+        setSubmitting(false);
+        return;
       }
+
+      // 3. Resend API එක හරහා පාරිභෝගිකයාට ඊමේල් නොටිෆිකේෂන් එක යැවීම
+      if (clientEmail) {
+        try {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              toEmail: clientEmail,
+              subject: `Package Arrived at Guangzhou Warehouse: ${trackingNo}`,
+              message: `Your package (Tracking: <b>${trackingNo}</b>, Courier: ${courier}, Weight: ${weight} KG) has arrived safely at our Guangzhou warehouse under your SWIFT code: <b>${swiftCode.toUpperCase()}</b> and is now added to your inventory.`
+            })
+          });
+        } catch (emailErr) {
+          console.error("Email sending failed:", emailErr);
+        }
+      }
+
+      alert(`Package ${trackingNo} successfully assigned to ${swiftCode.toUpperCase()} & Email notification sent!`);
+      setSwiftCode("");
+      setTrackingNo("");
+      setWeight("");
+
     } catch (err: any) {
       alert("An unexpected error occurred: " + err.message);
     }
@@ -157,7 +178,7 @@ export default function AdminScanner() {
               disabled={submitting} 
               className="w-full bg-red-600 hover:bg-red-700 disabled:bg-slate-700 text-white font-bold py-4 rounded-xl transition shadow-[0_0_20px_rgba(220,38,38,0.4)] mt-4"
             >
-              {submitting ? "Processing Package..." : "➕ Assign to Inventory & Save"}
+              {submitting ? "Processing & Sending Email..." : "➕ Assign Package & Send Email Alert"}
             </button>
           </form>
         </div>
