@@ -1,81 +1,154 @@
  "use client";
 import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
-export default function AdminConsolidation() {
-  const [consolidations] = useState([
-    { id: "req-1", user: "SWIFT-1050", packages: 3, oldWeight: "7.7", status: "Pending Packing" },
-    { id: "req-2", user: "SWIFT-1022", packages: 5, oldWeight: "12.4", status: "Packed" }
-  ]);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default function AdminConsolidationPage() {
+  const [swiftCode, setSwiftCode] = useState("");
+  const [packageIds, setPackageIds] = useState("");
+  const [finalWeight, setFinalWeight] = useState("");
+  const [finalCbm, setFinalCbm] = useState("");
+  const [shippingMode, setShippingMode] = useState("Air Freight");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleConsolidate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    try {
+      // 1. Get client profile by SWIFT Code
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("swift_code", swiftCode.trim().toUpperCase())
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error("Invalid SWIFT Code! Client not found.");
+      }
+
+      // 2. Create a new consolidated shipment record in 'shipments' table
+      const { error: shipmentError } = await supabase.from("shipments").insert([
+        {
+          user_id: profile.id,
+          package_ids: packageIds.split(',').map(id => id.trim()),
+          total_weight: parseFloat(finalWeight) || 0,
+          total_cbm: parseFloat(finalCbm) || 0,
+          shipping_mode: shippingMode,
+          status: "Consolidated & Packed"
+        }
+      ]);
+
+      if (shipmentError) throw shipmentError;
+
+      setMessage("success: Packages successfully consolidated and shipment created!");
+      setSwiftCode("");
+      setPackageIds("");
+      setFinalWeight("");
+      setFinalCbm("");
+
+    } catch (err: any) {
+      setMessage("error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-72 bg-[#0B1120] border-r border-white/10 p-6 flex flex-col">
-        <div className="flex items-center gap-2 mb-10">
-          <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]">W</div>
-          <div className="text-xl font-bold tracking-tight text-white">Swiftline<span className="text-red-500">.</span> WMS</div>
-        </div>
-        <nav className="space-y-2 flex-1">
-          <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white text-sm font-medium"><span>📟</span> Inbound Scanner</Link>
-          <Link href="/admin/consolidation" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white text-sm font-medium"><span>📦</span> Consolidation Hub</Link>
-          <Link href="/admin/qc" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white text-sm font-medium"><span>✨</span> Smart AI QC</Link>
-        </nav>
-        <div className="mt-auto pt-6 border-t border-white/10">
-          <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white transition text-sm font-medium">
-            👁️ View Client Portal
+    <div className="min-h-screen bg-[#0B1120] text-slate-200 font-sans p-6 sm:p-10">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center bg-[#060913] border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Consolidation Manager 📦➔📦</h1>
+            <p className="text-slate-400 text-sm mt-1">ਕුඩා පාර්සල් එකතු කර (Repack) අවසාන නැව්ගත කිරීම සකස් කරන්න.</p>
+          </div>
+          <Link href="/admin/wms" className="bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm transition">
+            Back to WMS Scanner
           </Link>
         </div>
-      </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
-        <header className="flex justify-between items-center mb-10 bg-[#0B1120]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Consolidation Manager</h1>
-            <p className="text-sm text-slate-400">Manage client package bundling requests</p>
+        {/* Message Alert */}
+        {message && (
+          <div className={`p-4 rounded-2xl border text-sm font-medium ${message.startsWith("success") ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border-red-500/20 text-red-400"}`}>
+            {message.replace(/^(success|error):\s*/, "")}
           </div>
-          <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500/30">System Online 🟢</span>
-        </header>
+        )}
 
-        <div className="bg-[#0B1120] rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
-          <div className="p-6 border-b border-white/10">
-            <h2 className="text-lg font-bold text-white">Pending Consolidation Requests</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-white/5 text-slate-400 text-xs uppercase tracking-wider">
-                  <th className="p-5 font-semibold">Client</th>
-                  <th className="p-5 font-semibold text-center">Items to Merge</th>
-                  <th className="p-5 font-semibold">Total Old Weight</th>
-                  <th className="p-5 font-semibold">Status</th>
-                  <th className="p-5 font-semibold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-sm">
-                {consolidations.map((req) => (
-                  <tr key={req.id} className="hover:bg-white/5 transition">
-                    <td className="p-5 font-bold text-blue-400">{req.user}</td>
-                    <td className="p-5 text-center text-white font-medium">{req.packages} Packages</td>
-                    <td className="p-5 text-slate-300">{req.oldWeight} KG</td>
-                    <td className="p-5">
-                      <span className={`text-xs font-bold px-3 py-1 rounded-full border ${req.status === 'Pending Packing' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                        {req.status}
-                      </span>
-                    </td>
-                    <td className="p-5 text-right">
-                      <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-md">
-                        Enter New Weight
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Form */}
+        <div className="bg-[#060913] border border-white/10 rounded-3xl p-8 backdrop-blur-md shadow-xl">
+          <h2 className="text-lg font-bold text-white mb-6">⚙️ Repack & Create Final Shipment</h2>
+          
+          <form onSubmit={handleConsolidate} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Client SWIFT Code</label>
+              <input 
+                type="text" value={swiftCode} onChange={(e) => setSwiftCode(e.target.value)} required
+                placeholder="e.g. SWIFT-1001" 
+                className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 font-mono uppercase"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Package IDs (Comma separated)</label>
+              <input 
+                type="text" value={packageIds} onChange={(e) => setPackageIds(e.target.value)} required
+                placeholder="e.g. PKG-01, PKG-02, PKG-03" 
+                className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Final Repacked Weight (KG)</label>
+              <input 
+                type="number" step="0.01" value={finalWeight} onChange={(e) => setFinalWeight(e.target.value)} required
+                placeholder="e.g. 12.5" 
+                className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Final Volume (CBM)</label>
+              <input 
+                type="number" step="0.001" value={finalCbm} onChange={(e) => setFinalCbm(e.target.value)} 
+                placeholder="e.g. 0.15" 
+                className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 font-medium"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Shipping Mode</label>
+              <select 
+                value={shippingMode} onChange={(e) => setShippingMode(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"
+              >
+                <option value="Air Freight">✈️ Air Freight (Express)</option>
+                <option value="Sea Freight">🚢 Sea Freight (Container / LCL)</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-2 pt-4">
+              <button 
+                type="submit" disabled={loading}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2"
+              >
+                {loading ? "Processing Consolidation..." : "Confirm Repack & Create Shipment 🚀"}
+              </button>
+            </div>
+
+          </form>
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }
