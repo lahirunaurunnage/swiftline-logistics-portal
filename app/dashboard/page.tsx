@@ -275,6 +275,35 @@ function DashboardContent() {
           </Link>
         </div>
 
+        {/* PROPOSAL-LEVEL SUB-SERVICES QUICK NAVIGATION (Sitelinks Grid) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          
+          <Link href="/dashboard/book-qc" className="bg-[#060913] border border-white/10 hover:border-blue-500/50 p-5 rounded-2xl transition group">
+            <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">🔎</div>
+            <h3 className="text-white font-bold text-sm">Book QC Inspection</h3>
+            <p className="text-slate-400 text-xs mt-1">Request factory audits ($99) with AI reports.</p>
+          </Link>
+
+          <Link href="/dashboard/inventory" className="bg-[#060913] border border-white/10 hover:border-emerald-500/50 p-5 rounded-2xl transition group">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">📦</div>
+            <h3 className="text-white font-bold text-sm">Package Consolidation</h3>
+            <p className="text-slate-400 text-xs mt-1">Combine multiple Taobao parcels & save 60%.</p>
+          </Link>
+
+          <Link href="/dashboard/tracker" className="bg-[#060913] border border-white/10 hover:border-purple-500/50 p-5 rounded-2xl transition group">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">🌍</div>
+            <h3 className="text-white font-bold text-sm">Global Package Tracker</h3>
+            <p className="text-slate-400 text-xs mt-1">Live tracking via AfterShip / SF Express.</p>
+          </Link>
+
+          <Link href="/dashboard/support" className="bg-[#060913] border border-white/10 hover:border-yellow-500/50 p-5 rounded-2xl transition group">
+            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">💬</div>
+            <h3 className="text-white font-bold text-sm">Support & Invoices</h3>
+            <p className="text-slate-400 text-xs mt-1">Commercial bills & return management tickets.</p>
+          </Link>
+
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           <div className="lg:col-span-2 space-y-8">
