@@ -1,7 +1,7 @@
  "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const supabase = createClient(
@@ -9,15 +9,152 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export default function AdvancedClientDashboard() {
+// ----------------- SHIPPING ARBITRAGE CALCULATOR COMPONENT -----------------
+function ShippingArbitrageSection({ jobId, productName }: { jobId: string; productName: string }) {
+  const [weightKg, setWeightKg] = useState<number | "">("");
+  const [destinationCountry, setDestinationCountry] = useState("US");
+  const [loadingRates, setLoadingRates] = useState(false);
+  const [shippingRates, setShippingRates] = useState<any[]>([]);
+
+  const fetchShippingRates = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!weightKg || weightKg <= 0) {
+      alert("Please enter a valid package weight in KG.");
+      return;
+    }
+
+    setLoadingRates(true);
+    try {
+      const response = await fetch('/api/shipping-quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weightKg: Number(weightKg),
+          destinationCountry: destinationCountry,
+          toAddress: {
+            street: "123 Main St",
+            city: "New York",
+            state: "NY",
+            zip: "10001",
+            country: destinationCountry
+          }
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setShippingRates(data.rates);
+      } else {
+        alert("Error fetching rates: " + data.error);
+      }
+    } catch (err: any) {
+      console.error("Shipping quote error:", err);
+      alert("Failed to fetch shipping options.");
+    } finally {
+      setLoadingRates(false);
+    }
+  };
+
+  const handleApproveAndShip = async (rate: any) => {
+    alert(`Approved Job: ${jobId}\nSelected Courier: ${rate.carrier} (${rate.serviceName})\nTotal Price: $${rate.customerPrice}\nRedirecting to secure payment...`);
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-blue-950/40 to-[#0B1120] border border-blue-500/30 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl mt-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <span className="bg-emerald-500/20 text-emerald-400 text-xs font-extrabold uppercase px-3 py-1 rounded-full border border-emerald-500/30">
+            QC Approved ✓
+          </span>
+          <h3 className="text-xl font-extrabold text-white mt-2">Approve & Ship Your Cargo</h3>
+          <p className="text-slate-400 text-sm">Enter package details to get discounted global courier rates via Swiftline Arbitrage.</p>
+        </div>
+      </div>
+
+      <form onSubmit={fetchShippingRates} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-black/40 p-5 rounded-2xl border border-white/10">
+        <div>
+          <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Package Weight (KG)</label>
+          <input 
+            type="number" 
+            step="0.1" 
+            required
+            value={weightKg} 
+            onChange={(e) => setWeightKg(e.target.value === "" ? "" : parseFloat(e.target.value))} 
+            placeholder="e.g. 3.5" 
+            className="w-full bg-[#0B1120] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Destination Country</label>
+          <select 
+            value={destinationCountry} 
+            onChange={(e) => setDestinationCountry(e.target.value)} 
+            className="w-full bg-[#0B1120] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-medium"
+          >
+            <option value="US">United States (US)</option>
+            <option value="GB">United Kingdom (UK)</option>
+            <option value="AU">Australia (AU)</option>
+            <option value="CA">Canada (CA)</option>
+            <option value="LK">Sri Lanka (LK)</option>
+          </select>
+        </div>
+        <div className="sm:col-span-2">
+          <button 
+            type="submit" 
+            disabled={loadingRates}
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(37,99,235,0.4)] text-sm flex items-center justify-center gap-2"
+          >
+            {loadingRates ? "Fetching Live Dealer Rates..." : "⚡ Calculate Discounted Shipping Rates"}
+          </button>
+        </div>
+      </form>
+
+      {shippingRates.length > 0 && (
+        <div className="space-y-4 pt-2">
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Available Courier Options (Dealer Rates Applied)</h4>
+          <div className="space-y-3">
+            {shippingRates.map((rate) => (
+              <div key={rate.serviceId} className="bg-black/60 border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-blue-500/50 transition">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-white text-base">{rate.carrier}</span>
+                    <span className="bg-blue-500/20 text-blue-400 text-xs px-2.5 py-0.5 rounded-md font-bold">{rate.serviceName}</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">Estimated Delivery: <span className="text-emerald-400 font-semibold">{rate.estimatedDays} Days</span></p>
+                </div>
+                
+                <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-end">
+                  <div className="text-right">
+                    <p className="text-2xl font-extrabold text-emerald-400">${rate.customerPrice}</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide">Inclusive of dealer margin</p>
+                  </div>
+                  <button 
+                    onClick={() => handleApproveAndShip(rate)}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                  >
+                    Approve & Pay 🚀
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ----------------- MAIN DASHBOARD CONTENT -----------------
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isSuccess = searchParams.get("success") === "true";
+
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [trackingNo, setTrackingNo] = useState("");
   const [qcOrders, setQcOrders] = useState<any[]>([]);
-  
-  // Modal State
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
   useEffect(() => {
@@ -57,11 +194,10 @@ export default function AdvancedClientDashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Status Progress Helper
   const getProgressStep = (status: string) => {
     if (status === "Report Ready") return 3;
-    if (status === "In Progress" || status === "Awaiting AI Report") return 2;
-    return 1; // Awaiting Inspector / Booked
+    if (status === "In Progress" || status === "Awaiting AI Report" || status === "Awaiting Inspector") return 2;
+    return 1;
   };
 
   if (!user || !profile) return (
@@ -73,7 +209,7 @@ export default function AdvancedClientDashboard() {
   return (
     <div className="min-h-screen bg-[#0B1120] text-slate-200 font-sans selection:bg-blue-500/30">
       
-      {/* ----------------- TOP NAVBAR ----------------- */}
+      {/* NAVBAR */}
       <nav className="sticky top-0 z-40 backdrop-blur-xl bg-[#0B1120]/80 border-b border-white/10 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">S</div>
@@ -91,9 +227,43 @@ export default function AdvancedClientDashboard() {
         </div>
       </nav>
 
-      {/* ----------------- MAIN CONTENT ----------------- */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         
+        {/* PAYMENT SUCCESS BANNER */}
+        {isSuccess && (
+          <div className="bg-gradient-to-r from-emerald-900/40 via-emerald-600/20 to-[#0B1120] border border-emerald-500/40 text-emerald-300 p-8 rounded-3xl mb-10 shadow-[0_0_50px_rgba(16,185,129,0.2)] relative overflow-hidden animate-in fade-in slide-in-from-top-6 duration-700">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+            
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+              <div className="flex items-center gap-5">
+                <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl flex items-center justify-center text-emerald-400 text-3xl shadow-inner shrink-0">
+                  🎉
+                </div>
+                <div>
+                  <span className="bg-emerald-500/20 text-emerald-300 text-xs font-extrabold uppercase px-3 py-1 rounded-full tracking-wider mb-2 inline-block border border-emerald-500/30">
+                    Payment Verified Successfully
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    Your QC Inspection is Booked!
+                  </h2>
+                  <p className="text-slate-300 text-sm mt-1 max-w-xl">
+                    We have received your $99 payment securely via Stripe. Our ground inspectors in mainland China have been notified and will be deployed shortly.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <button 
+                  onClick={() => router.replace('/dashboard')} 
+                  className="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2"
+                >
+                  <span>✨</span> Got It, View Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Box */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#060913] border border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl mb-8">
           <div>
@@ -197,12 +367,11 @@ export default function AdvancedClientDashboard() {
         </div>
       </main>
 
-      {/* ----------------- JOB DETAILS MODAL (NEXT LEVEL) ----------------- */}
+      {/* JOB DETAILS MODAL */}
       {selectedJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0B1120] border border-white/10 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             
-            {/* Modal Header */}
             <div className="bg-[#060913] p-6 border-b border-white/10 flex justify-between items-center">
               <div>
                 <h3 className="text-xl font-bold text-white">QC Order Details</h3>
@@ -213,10 +382,9 @@ export default function AdvancedClientDashboard() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6 md:p-8 max-h-[75vh] overflow-y-auto">
               
-              {/* Progress Tracker UI */}
+              {/* Progress Tracker */}
               <div className="mb-10 relative">
                 <div className="absolute top-1/2 left-0 w-full h-1 bg-white/10 -translate-y-1/2 rounded-full"></div>
                 <div 
@@ -245,7 +413,7 @@ export default function AdvancedClientDashboard() {
               </div>
 
               {/* Data Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-black/30 p-5 rounded-2xl border border-white/5">
                   <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Product</span>
                   <span className="text-white font-medium">{selectedJob.product_name}</span>
@@ -268,15 +436,13 @@ export default function AdvancedClientDashboard() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-8 flex gap-4">
+              {/* SHIPPING ARBITRAGE SECTION OR STATUS MESSAGE */}
+              <div className="mt-8">
                 {selectedJob.status === "Report Ready" ? (
-                  <button className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg transition">
-                    📄 Download Final AI Report
-                  </button>
+                  <ShippingArbitrageSection jobId={selectedJob.job_id} productName={selectedJob.product_name} />
                 ) : (
-                  <button disabled className="flex-1 bg-slate-800 text-slate-500 font-bold py-4 rounded-xl border border-white/5 cursor-not-allowed">
-                    Report Not Ready Yet
+                  <button disabled className="w-full bg-slate-800 text-slate-500 font-bold py-4 rounded-xl border border-white/5 cursor-not-allowed">
+                    Report Not Ready Yet (In Progress)
                   </button>
                 )}
               </div>
@@ -287,5 +453,13 @@ export default function AdvancedClientDashboard() {
       )}
 
     </div>
+  );
+}
+
+export default function AdvancedClientDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0B1120]"></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
