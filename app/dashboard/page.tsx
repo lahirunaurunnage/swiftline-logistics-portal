@@ -60,7 +60,7 @@ function ShippingArbitrageSection({ jobId, productName }: { jobId: string; produ
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-950/40 to-[#0B1120] border border-blue-500/30 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl mt-6">
+    <div className="bg-gradient-to-br from-red-950/30 via-slate-900/90 to-[#0B1120] border border-red-500/30 p-6 sm:p-8 rounded-3xl space-y-6 shadow-[0_0_30px_rgba(0,0,0,0.5)] mt-6 backdrop-blur-xl">
       <div className="flex items-center justify-between">
         <div>
           <span className="bg-emerald-500/20 text-emerald-400 text-xs font-extrabold uppercase px-3 py-1 rounded-full border border-emerald-500/30">
@@ -81,7 +81,7 @@ function ShippingArbitrageSection({ jobId, productName }: { jobId: string; produ
             value={weightKg} 
             onChange={(e) => setWeightKg(e.target.value === "" ? "" : parseFloat(e.target.value))} 
             placeholder="e.g. 3.5" 
-            className="w-full bg-[#0B1120] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono"
+            className="w-full bg-slate-900 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 font-mono"
           />
         </div>
         <div>
@@ -89,7 +89,7 @@ function ShippingArbitrageSection({ jobId, productName }: { jobId: string; produ
           <select 
             value={destinationCountry} 
             onChange={(e) => setDestinationCountry(e.target.value)} 
-            className="w-full bg-[#0B1120] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-medium"
+            className="w-full bg-slate-900 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 font-medium"
           >
             <option value="US">United States (US)</option>
             <option value="GB">United Kingdom (UK)</option>
@@ -102,7 +102,7 @@ function ShippingArbitrageSection({ jobId, productName }: { jobId: string; produ
           <button 
             type="submit" 
             disabled={loadingRates}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(37,99,235,0.4)] text-sm flex items-center justify-center gap-2"
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-slate-700 text-white font-bold py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(220,38,38,0.4)] text-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             {loadingRates ? "Fetching Live Dealer Rates..." : "⚡ Calculate Discounted Shipping Rates"}
           </button>
@@ -114,11 +114,11 @@ function ShippingArbitrageSection({ jobId, productName }: { jobId: string; produ
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Available Courier Options (Dealer Rates Applied)</h4>
           <div className="space-y-3">
             {shippingRates.map((rate) => (
-              <div key={rate.serviceId} className="bg-black/60 border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-blue-500/50 transition">
+              <div key={rate.serviceId} className="bg-black/60 border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-red-500/50 transition">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-white text-base">{rate.carrier}</span>
-                    <span className="bg-blue-500/20 text-blue-400 text-xs px-2.5 py-0.5 rounded-md font-bold">{rate.serviceName}</span>
+                    <span className="bg-red-500/20 text-red-400 text-xs px-2.5 py-0.5 rounded-md font-bold">{rate.serviceName}</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">Estimated Delivery: <span className="text-emerald-400 font-semibold">{rate.estimatedDays} Days</span></p>
                 </div>
@@ -130,7 +130,7 @@ function ShippingArbitrageSection({ jobId, productName }: { jobId: string; produ
                   </div>
                   <button 
                     onClick={() => handleApproveAndShip(rate)}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-[0_0_15px_rgba(16,185,129,0.4)] cursor-pointer"
                   >
                     Approve & Pay 🚀
                   </button>
@@ -202,28 +202,28 @@ function DashboardContent() {
 
   if (!user || !profile) return (
     <div className="min-h-screen flex items-center justify-center bg-[#0B1120] text-white">
-      <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0B1120] text-slate-200 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#0B1120] text-slate-200 font-sans selection:bg-red-500 selection:text-white">
       
       {/* NAVBAR */}
       <nav className="sticky top-0 z-40 backdrop-blur-xl bg-[#0B1120]/80 border-b border-white/10 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">S</div>
-          <div className="text-xl font-bold text-white">Swiftline<span className="text-blue-500">.</span> Portal</div>
+          <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]">S</div>
+          <div className="text-xl font-bold text-white">Swiftline<span className="text-red-500">.</span> Portal</div>
         </div>
         <div className="flex items-center gap-6">
           <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full">
             <span className="text-xs text-slate-400">Account:</span>
             <span className="text-sm font-bold text-emerald-400">Active</span>
           </div>
-          <span className="text-sm font-bold bg-blue-600 text-white px-3 py-1 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.5)]">
+          <span className="text-sm font-bold bg-red-600 text-white px-3 py-1 rounded-full shadow-[0_0_10px_rgba(220,38,38,0.5)]">
             {profile.swift_code}
           </span>
-          <button onClick={handleLogout} className="text-sm text-slate-400 hover:text-white transition">Logout</button>
+          <button onClick={handleLogout} className="text-sm text-slate-400 hover:text-white transition cursor-pointer">Logout</button>
         </div>
       </nav>
 
@@ -231,7 +231,7 @@ function DashboardContent() {
         
         {/* PAYMENT SUCCESS BANNER */}
         {isSuccess && (
-          <div className="bg-gradient-to-r from-emerald-900/40 via-emerald-600/20 to-[#0B1120] border border-emerald-500/40 text-emerald-300 p-8 rounded-3xl mb-10 shadow-[0_0_50px_rgba(16,185,129,0.2)] relative overflow-hidden animate-in fade-in slide-in-from-top-6 duration-700">
+          <div className="bg-gradient-to-r from-emerald-950/60 via-emerald-900/30 to-[#0B1120] border border-emerald-500/40 text-emerald-300 p-8 rounded-3xl mb-10 shadow-[0_0_50px_rgba(16,185,129,0.2)] relative overflow-hidden animate-in fade-in slide-in-from-top-6 duration-700 backdrop-blur-xl">
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
@@ -255,7 +255,7 @@ function DashboardContent() {
               <div className="flex items-center gap-3 w-full md:w-auto">
                 <button 
                   onClick={() => router.replace('/dashboard')} 
-                  className="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2"
+                  className="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>✨</span> Got It, View Dashboard
                 </button>
@@ -265,12 +265,12 @@ function DashboardContent() {
         )}
 
         {/* Welcome Box */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#060913] border border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/90 backdrop-blur-xl border border-white/10 p-6 sm:p-8 rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.5)] mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome Back, Client! 👋</h1>
             <p className="text-slate-400 text-sm">Manage your inspections, warehouse address, and shipments seamlessly.</p>
           </div>
-          <Link href="/dashboard/book-qc" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl transition shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center gap-2">
+          <Link href="/dashboard/book-qc" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl transition shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center gap-2">
             <span>🔎</span> Book New QC ($99)
           </Link>
         </div>
@@ -278,26 +278,26 @@ function DashboardContent() {
         {/* PROPOSAL-LEVEL SUB-SERVICES QUICK NAVIGATION (Sitelinks Grid) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           
-          <Link href="/dashboard/book-qc" className="bg-[#060913] border border-white/10 hover:border-blue-500/50 p-5 rounded-2xl transition group">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">🔎</div>
+          <Link href="/dashboard/book-qc" className="bg-slate-900/90 backdrop-blur-xl border border-white/10 hover:border-red-500/50 p-5 rounded-3xl transition group shadow-xl">
+            <div className="w-10 h-10 rounded-xl bg-red-600/20 text-red-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition border border-red-500/30">🔎</div>
             <h3 className="text-white font-bold text-sm">Book QC Inspection</h3>
             <p className="text-slate-400 text-xs mt-1">Request factory audits ($99) with AI reports.</p>
           </Link>
 
-          <Link href="/dashboard/inventory" className="bg-[#060913] border border-white/10 hover:border-emerald-500/50 p-5 rounded-2xl transition group">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">📦</div>
+          <Link href="/dashboard/inventory" className="bg-slate-900/90 backdrop-blur-xl border border-white/10 hover:border-emerald-500/50 p-5 rounded-3xl transition group shadow-xl">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition border border-emerald-500/30">📦</div>
             <h3 className="text-white font-bold text-sm">Package Consolidation</h3>
             <p className="text-slate-400 text-xs mt-1">Combine multiple Taobao parcels & save 60%.</p>
           </Link>
 
-          <Link href="/dashboard/tracker" className="bg-[#060913] border border-white/10 hover:border-purple-500/50 p-5 rounded-2xl transition group">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">🌍</div>
+          <Link href="/dashboard/tracker" className="bg-slate-900/90 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 p-5 rounded-3xl transition group shadow-xl">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition border border-purple-500/30">🌍</div>
             <h3 className="text-white font-bold text-sm">Global Package Tracker</h3>
             <p className="text-slate-400 text-xs mt-1">Live tracking via AfterShip / SF Express.</p>
           </Link>
 
-          <Link href="/dashboard/support" className="bg-[#060913] border border-white/10 hover:border-yellow-500/50 p-5 rounded-2xl transition group">
-            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition">💬</div>
+          <Link href="/dashboard/support" className="bg-slate-900/90 backdrop-blur-xl border border-white/10 hover:border-yellow-500/50 p-5 rounded-3xl transition group shadow-xl">
+            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition border border-yellow-500/30">💬</div>
             <h3 className="text-white font-bold text-sm">Support & Invoices</h3>
             <p className="text-slate-400 text-xs mt-1">Commercial bills & return management tickets.</p>
           </Link>
@@ -308,10 +308,10 @@ function DashboardContent() {
           
           <div className="lg:col-span-2 space-y-8">
             {/* QC Orders Table */}
-            <div className="bg-[#060913] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
+            <div className="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-white">Your QC Inspections</h2>
-                <button onClick={fetchRealData} className="text-sm text-blue-400 hover:text-blue-300">🔄 Refresh</button>
+                <button onClick={fetchRealData} className="text-sm text-red-400 hover:text-red-300 cursor-pointer">🔄 Refresh</button>
               </div>
               
               <div className="overflow-x-auto">
@@ -345,7 +345,7 @@ function DashboardContent() {
                             </span>
                           </td>
                           <td className="py-4 text-right">
-                            <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                            <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
                               View Details
                             </button>
                           </td>
@@ -358,21 +358,21 @@ function DashboardContent() {
             </div>
 
             {/* Warehouse Address */}
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl -z-10"></div>
+            <div className="rounded-3xl border border-white/10 bg-slate-900/90 backdrop-blur-xl p-8 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-red-600/10 rounded-full blur-3xl -z-10"></div>
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h2 className="text-xl font-bold text-white">Your China Warehouse Address</h2>
                   <p className="text-slate-400 text-sm mt-1">Send your Supplier/Factory goods here.</p>
                 </div>
-                <button onClick={copyAddress} className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2 rounded-xl transition">
+                <button onClick={copyAddress} className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-4 py-2 rounded-xl transition cursor-pointer shadow-[0_0_15px_rgba(220,38,38,0.4)]">
                   {copied ? "✓ Copied" : "📋 Copy Address"}
                 </button>
               </div>
               <div className="space-y-4">
                 <div className="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                   <span className="text-slate-400 text-sm">Receiver Name (SWIFT Code):</span>
-                  <span className="font-mono font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-lg mt-2 sm:mt-0">{profile.swift_code}</span>
+                  <span className="font-mono font-bold text-red-400 bg-red-500/10 px-3 py-1 rounded-lg mt-2 sm:mt-0 border border-red-500/20">{profile.swift_code}</span>
                 </div>
                 <div className="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                   <span className="text-slate-400 text-sm">China Address:</span>
@@ -384,11 +384,11 @@ function DashboardContent() {
 
           {/* Right Column (Tracker) */}
           <div className="space-y-8">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="rounded-3xl border border-white/10 bg-slate-900/90 backdrop-blur-xl p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
               <h2 className="text-xl font-bold text-white mb-2">Global Package Tracker 🌍</h2>
               <form onSubmit={(e) => { e.preventDefault(); alert("Tracking API connected soon."); }} className="flex flex-col gap-3 mt-4">
-                <input type="text" value={trackingNo} onChange={(e) => setTrackingNo(e.target.value)} placeholder="Tracking number..." className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500" />
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition">Track Now</button>
+                <input type="text" value={trackingNo} onChange={(e) => setTrackingNo(e.target.value)} placeholder="Tracking number..." className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-red-500" />
+                <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition cursor-pointer shadow-[0_0_15px_rgba(220,38,38,0.4)]">Track Now</button>
               </form>
             </div>
           </div>
@@ -398,15 +398,15 @@ function DashboardContent() {
 
       {/* JOB DETAILS MODAL */}
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0B1120] border border-white/10 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-slate-900 border border-white/10 w-full max-w-2xl rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in duration-200">
             
-            <div className="bg-[#060913] p-6 border-b border-white/10 flex justify-between items-center">
+            <div className="bg-black/40 p-6 border-b border-white/10 flex justify-between items-center">
               <div>
                 <h3 className="text-xl font-bold text-white">QC Order Details</h3>
                 <p className="text-slate-400 font-mono text-sm mt-1">{selectedJob.job_id}</p>
               </div>
-              <button onClick={() => setSelectedJob(null)} className="bg-white/10 hover:bg-red-500/20 hover:text-red-400 text-slate-400 w-10 h-10 rounded-full flex items-center justify-center transition">
+              <button onClick={() => setSelectedJob(null)} className="bg-white/10 hover:bg-red-500/20 hover:text-red-400 text-slate-400 w-10 h-10 rounded-full flex items-center justify-center transition cursor-pointer">
                 ✕
               </button>
             </div>
@@ -417,23 +417,23 @@ function DashboardContent() {
               <div className="mb-10 relative">
                 <div className="absolute top-1/2 left-0 w-full h-1 bg-white/10 -translate-y-1/2 rounded-full"></div>
                 <div 
-                  className="absolute top-1/2 left-0 h-1 bg-blue-500 -translate-y-1/2 rounded-full transition-all duration-500" 
+                  className="absolute top-1/2 left-0 h-1 bg-red-600 -translate-y-1/2 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(220,38,38,0.6)]" 
                   style={{ width: getProgressStep(selectedJob.status) === 1 ? '15%' : getProgressStep(selectedJob.status) === 2 ? '50%' : '100%' }}
                 ></div>
                 
                 <div className="relative flex justify-between">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold border-4 border-[#0B1120]">✓</div>
+                    <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold border-4 border-slate-900 shadow-[0_0_10px_rgba(220,38,38,0.5)]">✓</div>
                     <span className="text-xs font-bold text-white">Booked</span>
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-[#0B1120] ${getProgressStep(selectedJob.status) >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-slate-900 ${getProgressStep(selectedJob.status) >= 2 ? 'bg-red-600 text-white shadow-[0_0_10px_rgba(220,38,38,0.5)]' : 'bg-slate-700 text-slate-400'}`}>
                       {getProgressStep(selectedJob.status) >= 2 ? '✓' : '2'}
                     </div>
                     <span className={`text-xs font-bold ${getProgressStep(selectedJob.status) >= 2 ? 'text-white' : 'text-slate-500'}`}>In Progress</span>
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-[#0B1120] ${getProgressStep(selectedJob.status) === 3 ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-slate-900 ${getProgressStep(selectedJob.status) === 3 ? 'bg-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-700 text-slate-400'}`}>
                       {getProgressStep(selectedJob.status) === 3 ? '✓' : '3'}
                     </div>
                     <span className={`text-xs font-bold ${getProgressStep(selectedJob.status) === 3 ? 'text-emerald-400' : 'text-slate-500'}`}>Report Ready</span>
