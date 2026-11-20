@@ -11,6 +11,8 @@
   "dependencies": {
     "@easypost/api": "^9.2.0",
     "@supabase/supabase-js": "^2.119.0",
+    "@types/three": "^0.187.0",
+    "@types/topojson-client": "^3.1.5",
     "jspdf": "^4.2.1",
     "next": "16.4.6",
     "react": "19.3.0",
@@ -18,7 +20,10 @@
     "resend": "^6.38.1",
     "strip": "^3.0.0",
     "stripe": "^23.1.0",
-    "twilio": "^6.3.0"
+    "three": "^0.187.0",
+    "topojson-client": "^3.1.0",
+    "twilio": "^6.3.0",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
